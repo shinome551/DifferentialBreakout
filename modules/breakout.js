@@ -29,14 +29,14 @@ class Breakout extends Phaser.Scene {
         this.textures.addSpriteSheet('background', this.background_canvas, config);
         this.textures.addImage('background_full', this.background_canvas);
 
-        this.load.image("paddle", "../img/paddle.svg");
-        this.load.spritesheet("ball", "../img/ball.png", { frameWidth: 20, frameHeight: 20});
-        this.load.spritesheet("button", "../img/button.png", { frameWidth: 120, frameHeight: 40 });
+        this.load.image("paddle", "https://shinome551.github.io/DifferentialBreakout/img/paddle.svg");
+        this.load.spritesheet("ball", "https://shinome551.github.io/DifferentialBreakout/img/ball.png", { frameWidth: 20, frameHeight: 20});
+        this.load.spritesheet("button", "https://shinome551.github.io/DifferentialBreakout/img/button.png", { frameWidth: 120, frameHeight: 40 });
         //this.load.audio('hit_general', '../audio/hit.mp3');
         //this.load.audio('hit_paddle_center', '../audio/rapid.mp3');
-        this.load.audio('explode_se', '../audio/bomb.mp3');
-        this.load.image('explode_effect', '../img/explode_effect.svg');
-        this.load.image('life_icon', '../img/life_icon.svg');
+        this.load.audio('explode_se', 'https://shinome551.github.io/DifferentialBreakout/audio/bomb.mp3');
+        this.load.image('explode_effect', 'https://shinome551.github.io/DifferentialBreakout/img/explode_effect.svg');
+        this.load.image('life_icon', 'https://shinome551.github.io/DifferentialBreakout/img/life_icon.svg');
     }
 
     create() {
