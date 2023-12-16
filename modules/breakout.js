@@ -34,7 +34,7 @@ class Breakout extends Phaser.Scene {
         this.load.spritesheet("button", "https://shinome551.github.io/DifferentialBreakout/img/button.png", { frameWidth: 120, frameHeight: 40 });
         //this.load.audio('hit_general', '../audio/hit.mp3');
         //this.load.audio('hit_paddle_center', '../audio/rapid.mp3');
-        this.load.audio('explode_se', 'https://shinome551.github.io/DifferentialBreakout/audio/bomb.mp3');
+        //this.load.audio('explode_se', 'https://shinome551.github.io/DifferentialBreakout/audio/bomb.mp3');
         this.load.image('explode_effect', 'https://shinome551.github.io/DifferentialBreakout/img/explode_effect.svg');
         this.load.image('life_icon', 'https://shinome551.github.io/DifferentialBreakout/img/life_icon.svg');
     }
