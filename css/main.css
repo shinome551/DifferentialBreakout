@@ -1,0 +1,102 @@
+/* CSS for tab navigation */
+.tabs-container {
+    display: flex;
+    align-items: center;
+    max-width: 600px; /* Optional: Set a maximum width for the tab container */
+    margin: 0 auto; /* Optional: Center the tab container horizontally */
+}
+
+.tab {
+    cursor: pointer;
+    padding: 5px 10px;
+    background-color: #f1f1f1;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.tab.active {
+    background-color: #ccc;
+}
+
+/* CSS for image display */
+.image-container {
+    display: none;
+    text-align: center;
+    position: relative; 
+}
+
+.image-container.active {
+    display: block;
+}
+
+.range-container {
+    position: relative;
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    max-width: 600px; /* Optional: Set a maximum width for the tab container */
+    margin: 20px auto 0 20px; /* Optional: Center the tab container horizontally */
+}
+
+#range-difference {
+    display : flex
+}
+
+.canvas-container {
+    position: relative;
+    max-width: 600px;
+    border: 2px dashed gray;
+    background-color: rgba(128, 128, 128, 0.2);
+    margin: 0 auto;
+    overflow: hidden;
+}
+
+.difference-canvas-container {
+    position: relative;
+    max-height: 800px;
+    border: 2px dashed gray;
+    background-color: rgba(128, 128, 128, 0.2);
+    margin: 0 20px 0 auto;
+    overflow: hidden;
+}
+
+.canvas {
+    display: block;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.upload-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+}
+
+.discard-button {
+    display: none;
+    background-color: rgba(255, 255, 255, 0.75);
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+}
+
+#block-canvas { 
+    position: absolute;
+    z-index: 2; 
+}
+
+#breakout-game {
+    display:inline-block;
+    position: relative;
+    margin: 0 20px 0 auto;
+}
+
+#stage-canvas { 
+    position: absolute;
+    z-index: 1;
+    }
+
+#difference-canvas { visibility:hidden; }

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Difference Breakout</title>
+    <style>
+    
+    </style>
+    <link href="./css/main.css" rel="stylesheet">
+    <link href="./css/menu.css" rel="stylesheet">
+    <link href="./css/cropper.min.css" rel="stylesheet">
+    <script src="./modules/cropper.min.js"></script>
+    <script src="./modules/phaser.min.js"></script>
+    <script src="./modules/breakout.js"></script>
+    <script src="./modules/utils.js"></script>
+    <script src="./modules/diff.js"></script>
+</head>
+<body>
+    <div class="tabs-container">
+        <div class="tab" onclick="switchTablebyIndex(0)">Foreground</div>
+        <div class="tab" onclick="switchTablebyIndex(1)">Background</div>
+        <div class="tab" onclick="switchTablebyIndex(2)">Difference</div>
+        <div class="tab" onclick="switchTablebyIndex(3)">Game</div>
+    </div>
+
+    <div class="image-container active">
+
+        <div class="canvas-container">
+            <div>
+                <canvas class="canvas" id="foreground-canvas"></canvas>
+            </div>
+            <img src="img/cross_hoso.svg" class="discard-button" id="foreground-discard-button" alt="Discard" width="20" height="20">
+            <input type="file" class="upload-button" id="foreground-upload-button">
+        </div>
+    </div>
+
+    <div class="image-container">
+        <div class="canvas-container">
+            <canvas class="canvas" id="background-canvas"></canvas>
+            <img src="img/cross_hoso.svg" class="discard-button" id="background-discard-button" alt="Discard" width="20" height="20">
+            <input type="file" class="upload-button" id="background-upload-button">
+        </div>
+    </div>
+
+    <div class="image-container" id="difference">
+        <div id="range-difference">
+            <div class="difference-canvas-container">
+                <canvas class="canvas" id="block-canvas"></canvas>
+                <canvas class="canvas" id="stage-canvas"></canvas>
+                <canvas class="canvas" id="difference-canvas"></canvas>
+                <img src="img/cross_hoso.svg" class="discard-button" id="difference-discard-button" alt="Discard" width="20" height="20">
+            </div>
+            <div class="range-container">
+                <input class="range" type="button" value="Generate" id="generate_button">
+                <div class="range">
+                    <p>Block Size</p>
+                    <input type="range" min="10" max="100" step="10", value="50", id="block_size">
+                </div>
+                <div class="range">
+                    <p>Difference Threshold</p>
+                    <input type="range" min="0" max="255" step="1", value="32", id="threshold">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="image-container">
+        <div id="breakout-game">
+            <div id="menu">
+                <div><a href="#menu" class="menuopen">≡</a><a href="#close" class="menuclose">x</a></div>
+                <ul>
+                    <li><a href="#close" id="visualize_blocks">Visualize Blocks</a></li>
+                    <li>Change BG Color<input type="color" id="background_color" onclick="location.href='#close'"></lili>
+                    <li><a href="#close" id="restart_game">Restart Game</a></li>
+                </ul>
+            </div>
+            <canvas class="canvas" id="game-canvas"></canvas>
+        </div>
+    </div>
+
+    <script>
+        let block_config = {
+            'size' : 50,
+            'threshold' : 32,
+            'crop_data' : null,
+            'position' : null,
+        }
+
+        let game_config = {
+            "init_vec" : [275, -275],
+            "ball_size" : [20, 20],
+            "paddle_size" : [100, 10],
+            "bounce" : 1.015,
+            "margin_y" : 100,
+            "rapid_thd" : 7,
+            "rapid_speed_scale" : 1.5,
+            "edge_thd" : 0.85,
+            "clear_thd" : 0.1,
+            "life_num" : 3
+        }
+
+        let click_event_state = 'delete'
+        let max_long_side = 800;
+        let game = null;
+
+        const foregroundCanvas = document.getElementById('foreground-canvas');
+        const foregroundUploadButton = document.getElementById('foreground-upload-button');
+        const foregroundDiscardButton = document.getElementById('foreground-discard-button');
+
+        const backgroundCanvas = document.getElementById('background-canvas');
+        const backgroundUploadButton = document.getElementById('background-upload-button');
+        const backgroundDiscardButton = document.getElementById('background-discard-button');
+
+        // Handle image upload
+        foregroundUploadButton.addEventListener('change', setLoadImageFunction(foregroundCanvas, foregroundUploadButton, foregroundDiscardButton, backgroundCanvas));
+        backgroundUploadButton.addEventListener('change', setLoadImageFunction(backgroundCanvas, backgroundUploadButton, backgroundDiscardButton, foregroundCanvas));
+
+        // Handle image discard
+        foregroundDiscardButton.addEventListener('click',setDiscardFunction(foregroundCanvas, foregroundUploadButton, foregroundDiscardButton));
+        backgroundDiscardButton.addEventListener('click',setDiscardFunction(backgroundCanvas, backgroundUploadButton, backgroundDiscardButton));
+
+        window.onload = (event) => {
+            document.getElementById('block_size').addEventListener('input', updateBlockByParameter);
+            document.getElementById('threshold').addEventListener('input', updateBlockByParameter);
+            document.getElementById('generate_button').addEventListener('click', generateBlockfromDifference);
+            document.getElementById("visualize_blocks").addEventListener ("click", visualizeBlocks)
+            document.getElementById("background_color").addEventListener ("input", changeBackgroundColor)
+            document.getElementById("restart_game").addEventListener ("click", restartGame);
+        };
+
+        window.addEventListener("DOMContentLoaded", ()=> {
+            const cv = document.getElementById("block-canvas");
+            cv.addEventListener("click",e=>{
+                const rect = e.target.getBoundingClientRect();
+                const
+                    viewX = e.clientX - rect.left,
+                    viewY = e.clientY - rect.top;
+
+                const
+                    scaleWidth = cv.clientWidth / cv.width,
+                    scaleHeight = cv.clientHeight / cv.height;
+
+                const
+                    canvasX = Math.floor(viewX / scaleWidth),
+                    canvasY = Math.floor(viewY / scaleHeight);
+
+                const block_size = block_config.size;
+                const x_grid = Math.floor(canvasX / block_size);
+                const y_grid = Math.floor(canvasY / block_size);
+                const row_grid_num = Math.floor(cv.width / block_size);
+                const column_grid_num = Math.floor(cv.height / block_size);
+                const frame = y_grid * row_grid_num + x_grid
+                if (x_grid > row_grid_num - 1 || y_grid > column_grid_num - 1) {
+                    console.log("pass");
+                } else {
+                    updateBlockByClick(frame, x_grid * block_size, y_grid * block_size, true);
+                };
+            });
+        });
+    </script>
+</body>
+</html>
